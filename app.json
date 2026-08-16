@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "QUANTUM",
+    "slug": "quantum",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "android": {
+      "package": "com.quantum.education",
+      "versionCode": 1
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "scheme": "quantum"
+  }
+}
