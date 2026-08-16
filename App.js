@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -10,54 +10,141 @@ import {
   SafeAreaView,
 } from "react-native";
 
+const subjects = [
+  {
+    id: "math",
+    icon: "∑",
+    name: "Mathematics",
+    chapters: "15 Chapters",
+    progress: 72,
+  },
+  {
+    id: "science",
+    icon: "⚛",
+    name: "Science",
+    chapters: "18 Chapters",
+    progress: 48,
+  },
+  {
+    id: "english",
+    icon: "A",
+    name: "English",
+    chapters: "12 Chapters",
+    progress: 64,
+  },
+  {
+    id: "social",
+    icon: "🌍",
+    name: "Social Science",
+    chapters: "16 Chapters",
+    progress: 31,
+  },
+  {
+    id: "computer",
+    icon: "</>",
+    name: "Computer",
+    chapters: "10 Chapters",
+    progress: 55,
+  },
+  {
+    id: "hindi",
+    icon: "अ",
+    name: "Hindi",
+    chapters: "14 Chapters",
+    progress: 82,
+  },
+];
+
 export default function App() {
+  const [screen, setScreen] = useState("home");
+  const [selectedSubject, setSelectedSubject] = useState(null);
+
+  function openSubjects() {
+    setScreen("subjects");
+  }
+
+  function openSubject(subject) {
+    setSelectedSubject(subject);
+    setScreen("chapters");
+  }
+
+  function goHome() {
+    setScreen("home");
+    setSelectedSubject(null);
+  }
+
+  if (screen === "subjects") {
+    return (
+      <SubjectsScreen
+        onBack={goHome}
+        onSelectSubject={openSubject}
+      />
+    );
+  }
+
+  if (screen === "chapters") {
+    return (
+      <ChapterScreen
+        subject={selectedSubject}
+        onBack={() => setScreen("subjects")}
+      />
+    );
+  }
+
+  return <HomeScreen onSubjects={openSubjects} />;
+}
+
+/* =========================
+   HOME SCREEN
+========================= */
+
+function HomeScreen({ onSubjects }) {
   const fade = useRef(new Animated.Value(0)).current;
-  const slide = useRef(new Animated.Value(30)).current;
 
   useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fade, {
-        toValue: 1,
-        duration: 700,
-        useNativeDriver: true,
-      }),
-      Animated.spring(slide, {
-        toValue: 0,
-        friction: 7,
-        useNativeDriver: true,
-      }),
-    ]).start();
+    Animated.timing(fade, {
+      toValue: 1,
+      duration: 600,
+      useNativeDriver: true,
+    }).start();
   }, []);
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="light-content" backgroundColor="#060611" />
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="#060611"
+      />
 
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        <Animated.View
-          style={{
+      <Animated.View
+        style={[
+          styles.flex,
+          {
             opacity: fade,
-            transform: [{ translateY: slide }],
-          }}
+          },
+        ]}
+      >
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.content}
         >
-          {/* HEADER */}
-
           <View style={styles.header}>
             <View>
-              <Text style={styles.smallText}>GOOD MORNING</Text>
-              <Text style={styles.name}>Student</Text>
+              <Text style={styles.smallText}>
+                GOOD MORNING
+              </Text>
+
+              <Text style={styles.name}>
+                Student
+              </Text>
             </View>
 
-            <TouchableOpacity style={styles.profileButton}>
-              <Text style={styles.profileText}>S</Text>
-            </TouchableOpacity>
+            <View style={styles.profileButton}>
+              <Text style={styles.profileText}>
+                S
+              </Text>
+            </View>
           </View>
-
-          {/* WELCOME CARD */}
 
           <View style={styles.welcomeCard}>
             <View>
@@ -70,10 +157,10 @@ export default function App() {
               </Text>
             </View>
 
-            <Text style={styles.quantumSymbol}>Q</Text>
+            <Text style={styles.quantumSymbol}>
+              Q
+            </Text>
           </View>
-
-          {/* STATS */}
 
           <View style={styles.statsRow}>
             <StatCard
@@ -95,8 +182,6 @@ export default function App() {
             />
           </View>
 
-          {/* CONTINUE LEARNING */}
-
           <SectionTitle
             title="Continue Learning"
             action="See all"
@@ -104,7 +189,9 @@ export default function App() {
 
           <View style={styles.learningCard}>
             <View style={styles.subjectIcon}>
-              <Text style={styles.subjectIconText}>M</Text>
+              <Text style={styles.subjectIconText}>
+                M
+              </Text>
             </View>
 
             <View style={styles.learningInfo}>
@@ -112,12 +199,12 @@ export default function App() {
                 Mathematics
               </Text>
 
-              <Text style={styles.chapter}>
+              <Text style={styles.chapterText}>
                 Chapter 04 • Algebra
               </Text>
 
-              <View style={styles.progressBackground}>
-                <View style={styles.progress} />
+              <View style={styles.progressTrack}>
+                <View style={styles.progressFill} />
               </View>
 
               <Text style={styles.progressText}>
@@ -125,23 +212,35 @@ export default function App() {
               </Text>
             </View>
 
-            <TouchableOpacity style={styles.continueButton}>
-              <Text style={styles.continueText}>→</Text>
-            </TouchableOpacity>
+            <Text style={styles.arrow}>
+              →
+            </Text>
           </View>
-
-          {/* QUICK ACCESS */}
 
           <SectionTitle title="Quick Access" />
 
           <View style={styles.quickGrid}>
-            <QuickCard icon="🧠" title="Quiz" />
-            <QuickCard icon="📝" title="Notes" />
-            <QuickCard icon="⏱" title="Timer" />
-            <QuickCard icon="📊" title="Progress" />
-          </View>
+            <QuickCard
+              icon="📚"
+              title="Subjects"
+              onPress={onSubjects}
+            />
 
-          {/* TODAY GOAL */}
+            <QuickCard
+              icon="🧠"
+              title="Quiz"
+            />
+
+            <QuickCard
+              icon="📝"
+              title="Notes"
+            />
+
+            <QuickCard
+              icon="⏱"
+              title="Timer"
+            />
+          </View>
 
           <SectionTitle title="Today's Goal" />
 
@@ -157,7 +256,9 @@ export default function App() {
                 </Text>
               </View>
 
-              <Text style={styles.goalPercent}>80%</Text>
+              <Text style={styles.goalPercent}>
+                80%
+              </Text>
             </View>
 
             <View style={styles.goalTrack}>
@@ -165,14 +266,13 @@ export default function App() {
             </View>
           </View>
 
-          {/* DAILY QUIZ */}
-
-          <View style={styles.quizCard}>
-            <View style={styles.quizBadge}>
-              <Text style={styles.quizBadgeText}>
-                DAILY QUIZ
-              </Text>
-            </View>
+          <TouchableOpacity
+            style={styles.quizCard}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.quizBadge}>
+              DAILY QUIZ
+            </Text>
 
             <Text style={styles.quizTitle}>
               Test your knowledge
@@ -182,36 +282,273 @@ export default function App() {
               10 questions • Medium difficulty
             </Text>
 
-            <TouchableOpacity style={styles.quizButton}>
+            <View style={styles.quizButton}>
               <Text style={styles.quizButtonText}>
                 Start Quiz
               </Text>
-            </TouchableOpacity>
-          </View>
+            </View>
+          </TouchableOpacity>
+        </ScrollView>
 
-          <Text style={styles.footer}>
-            QUANTUM • Learn. Practice. Achieve.
-          </Text>
-        </Animated.View>
-      </ScrollView>
-
-      {/* BOTTOM NAVIGATION */}
-
-      <View style={styles.bottomNav}>
-        <NavItem icon="⌂" label="Home" active />
-        <NavItem icon="▣" label="Subjects" />
-        <NavItem icon="?" label="Quiz" />
-        <NavItem icon="◒" label="Progress" />
-        <NavItem icon="●" label="Profile" />
-      </View>
+        <BottomNav
+          active="Home"
+          onHome={() => {}}
+          onSubjects={onSubjects}
+        />
+      </Animated.View>
     </SafeAreaView>
   );
 }
 
+/* =========================
+   SUBJECTS SCREEN
+========================= */
+
+function SubjectsScreen({
+  onBack,
+  onSelectSubject,
+}) {
+  return (
+    <SafeAreaView style={styles.safe}>
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="#060611"
+      />
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+      >
+        <View style={styles.pageHeader}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={onBack}
+          >
+            <Text style={styles.backText}>
+              ‹
+            </Text>
+          </TouchableOpacity>
+
+          <View style={styles.pageHeaderText}>
+            <Text style={styles.eyebrow}>
+              QUANTUM LEARNING
+            </Text>
+
+            <Text style={styles.title}>
+              Your Subjects
+            </Text>
+
+            <Text style={styles.subtitle}>
+              Choose a subject and continue learning.
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.classCard}>
+          <View>
+            <Text style={styles.classLabel}>
+              CURRENT CLASS
+            </Text>
+
+            <Text style={styles.className}>
+              Class 10
+            </Text>
+          </View>
+
+          <TouchableOpacity style={styles.changeButton}>
+            <Text style={styles.changeText}>
+              Change
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.infoRow}>
+          <Text style={styles.infoTitle}>
+            All Subjects
+          </Text>
+
+          <Text style={styles.infoCount}>
+            {subjects.length} Subjects
+          </Text>
+        </View>
+
+        {subjects.map((subject) => (
+          <TouchableOpacity
+            key={subject.id}
+            style={styles.subjectCard}
+            activeOpacity={0.8}
+            onPress={() => onSelectSubject(subject)}
+          >
+            <View style={styles.subjectIcon}>
+              <Text style={styles.subjectIconText}>
+                {subject.icon}
+              </Text>
+            </View>
+
+            <View style={styles.subjectInfo}>
+              <Text style={styles.subjectName}>
+                {subject.name}
+              </Text>
+
+              <Text style={styles.chapterText}>
+                {subject.chapters}
+              </Text>
+
+              <View style={styles.progressTrack}>
+                <View
+                  style={[
+                    styles.progressFill,
+                    {
+                      width: `${subject.progress}%`,
+                    },
+                  ]}
+                />
+              </View>
+
+              <Text style={styles.progressText}>
+                {subject.progress}% completed
+              </Text>
+            </View>
+
+            <View style={styles.arrowCircle}>
+              <Text style={styles.arrow}>
+                →
+              </Text>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+/* =========================
+   CHAPTER SCREEN
+========================= */
+
+function ChapterScreen({
+  subject,
+  onBack,
+}) {
+  const chapters = [
+    "Introduction",
+    "Basic Concepts",
+    "Important Formulas",
+    "Practice Problems",
+    "Revision",
+  ];
+
+  return (
+    <SafeAreaView style={styles.safe}>
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="#060611"
+      />
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+      >
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={onBack}
+        >
+          <Text style={styles.backText}>
+            ‹
+          </Text>
+        </TouchableOpacity>
+
+        <Text style={styles.eyebrow}>
+          SUBJECT
+        </Text>
+
+        <Text style={styles.title}>
+          {subject?.name}
+        </Text>
+
+        <Text style={styles.subtitle}>
+          Select a chapter to start learning.
+        </Text>
+
+        <View style={styles.subjectHero}>
+          <Text style={styles.heroIcon}>
+            {subject?.icon}
+          </Text>
+
+          <View style={{ flex: 1 }}>
+            <Text style={styles.heroTitle}>
+              {subject?.name}
+            </Text>
+
+            <Text style={styles.heroSubtitle}>
+              {subject?.progress}% overall progress
+            </Text>
+
+            <View style={styles.progressTrack}>
+              <View
+                style={[
+                  styles.progressFill,
+                  {
+                    width: `${subject?.progress || 0}%`,
+                  },
+                ]}
+              />
+            </View>
+          </View>
+        </View>
+
+        <Text style={styles.chapterHeading}>
+          Chapters
+        </Text>
+
+        {chapters.map((chapter, index) => (
+          <TouchableOpacity
+            key={chapter}
+            style={styles.chapterCard}
+            activeOpacity={0.8}
+          >
+            <View style={styles.chapterNumber}>
+              <Text style={styles.chapterNumberText}>
+                {String(index + 1).padStart(2, "0")}
+              </Text>
+            </View>
+
+            <View style={{ flex: 1 }}>
+              <Text style={styles.chapterTitle}>
+                {chapter}
+              </Text>
+
+              <Text style={styles.chapterMeta}>
+                Lesson • Quiz • Practice
+              </Text>
+            </View>
+
+            <Text style={styles.arrow}>
+              →
+            </Text>
+          </TouchableOpacity>
+        ))}
+
+        <TouchableOpacity style={styles.startButton}>
+          <Text style={styles.startButtonText}>
+            Start Learning
+          </Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+/* =========================
+   COMPONENTS
+========================= */
+
 function StatCard({ icon, value, label }) {
   return (
     <View style={styles.statCard}>
-      <Text style={styles.statIcon}>{icon}</Text>
+      <Text style={styles.statIcon}>
+        {icon}
+      </Text>
 
       <Text style={styles.statValue}>
         {value}
@@ -224,10 +561,20 @@ function StatCard({ icon, value, label }) {
   );
 }
 
-function QuickCard({ icon, title }) {
+function QuickCard({
+  icon,
+  title,
+  onPress,
+}) {
   return (
-    <TouchableOpacity style={styles.quickCard}>
-      <Text style={styles.quickIcon}>{icon}</Text>
+    <TouchableOpacity
+      style={styles.quickCard}
+      onPress={onPress}
+      activeOpacity={0.8}
+    >
+      <Text style={styles.quickIcon}>
+        {icon}
+      </Text>
 
       <Text style={styles.quickTitle}>
         {title}
@@ -236,7 +583,10 @@ function QuickCard({ icon, title }) {
   );
 }
 
-function SectionTitle({ title, action }) {
+function SectionTitle({
+  title,
+  action,
+}) {
   return (
     <View style={styles.sectionHeader}>
       <Text style={styles.sectionTitle}>
@@ -252,29 +602,95 @@ function SectionTitle({ title, action }) {
   );
 }
 
-function NavItem({ icon, label, active }) {
+function BottomNav({
+  active,
+  onHome,
+  onSubjects,
+}) {
   return (
-    <TouchableOpacity style={styles.navItem}>
-      <Text
-        style={[
-          styles.navIcon,
-          active && styles.navActive,
-        ]}
+    <View style={styles.bottomNav}>
+      <TouchableOpacity
+        style={styles.navItem}
+        onPress={onHome}
       >
-        {icon}
-      </Text>
+        <Text
+          style={[
+            styles.navIcon,
+            active === "Home" && styles.navActive,
+          ]}
+        >
+          ⌂
+        </Text>
 
-      <Text
-        style={[
-          styles.navLabel,
-          active && styles.navActive,
-        ]}
+        <Text
+          style={[
+            styles.navLabel,
+            active === "Home" && styles.navActive,
+          ]}
+        >
+          Home
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.navItem}
+        onPress={onSubjects}
       >
-        {label}
-      </Text>
-    </TouchableOpacity>
+        <Text
+          style={[
+            styles.navIcon,
+            active === "Subjects" && styles.navActive,
+          ]}
+        >
+          ▣
+        </Text>
+
+        <Text
+          style={[
+            styles.navLabel,
+            active === "Subjects" && styles.navActive,
+          ]}
+        >
+          Subjects
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.navItem}>
+        <Text style={styles.navIcon}>
+          ?
+        </Text>
+
+        <Text style={styles.navLabel}>
+          Quiz
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.navItem}>
+        <Text style={styles.navIcon}>
+          ◒
+        </Text>
+
+        <Text style={styles.navLabel}>
+          Progress
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.navItem}>
+        <Text style={styles.navIcon}>
+          ●
+        </Text>
+
+        <Text style={styles.navLabel}>
+          Profile
+        </Text>
+      </TouchableOpacity>
+    </View>
   );
 }
+
+/* =========================
+   STYLES
+========================= */
 
 const styles = StyleSheet.create({
   safe: {
@@ -282,21 +698,19 @@ const styles = StyleSheet.create({
     backgroundColor: "#060611",
   },
 
-  container: {
+  flex: {
     flex: 1,
-    backgroundColor: "#060611",
   },
 
   content: {
-    paddingHorizontal: 18,
-    paddingTop: 18,
+    padding: 18,
     paddingBottom: 110,
   },
 
   header: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 22,
   },
 
@@ -341,7 +755,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    overflow: "hidden",
   },
 
   welcomeTitle: {
@@ -361,7 +774,6 @@ const styles = StyleSheet.create({
     fontSize: 80,
     fontWeight: "900",
     fontStyle: "italic",
-    opacity: 0.8,
   },
 
   statsRow: {
@@ -428,18 +840,18 @@ const styles = StyleSheet.create({
   },
 
   subjectIcon: {
-    width: 52,
-    height: 52,
-    borderRadius: 16,
-    backgroundColor: "#1C1838",
+    width: 53,
+    height: 53,
+    borderRadius: 17,
+    backgroundColor: "#1B1737",
     borderWidth: 1,
-    borderColor: "#5744C8",
+    borderColor: "#5140B8",
     alignItems: "center",
     justifyContent: "center",
   },
 
   subjectIconText: {
-    color: "#9B88FF",
+    color: "#A18FFF",
     fontSize: 22,
     fontWeight: "900",
   },
@@ -447,6 +859,7 @@ const styles = StyleSheet.create({
   learningInfo: {
     flex: 1,
     marginLeft: 13,
+    marginRight: 10,
   },
 
   subjectName: {
@@ -455,44 +868,35 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
 
-  chapter: {
-    color: "#737187",
-    fontSize: 11,
-    marginTop: 4,
+  chapterText: {
+    color: "#66647A",
+    fontSize: 10,
+    marginTop: 3,
   },
 
-  progressBackground: {
+  progressTrack: {
     height: 5,
     backgroundColor: "#222238",
     borderRadius: 5,
-    marginTop: 11,
+    marginTop: 9,
     overflow: "hidden",
   },
 
-  progress: {
-    width: "72%",
+  progressFill: {
     height: "100%",
     backgroundColor: "#7658FF",
+    borderRadius: 5,
   },
 
   progressText: {
-    color: "#77758D",
+    color: "#66647A",
     fontSize: 9,
-    marginTop: 5,
+    marginTop: 4,
   },
 
-  continueButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: "#201A48",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  continueText: {
-    color: "#9B88FF",
-    fontSize: 21,
+  arrow: {
+    color: "#9481FF",
+    fontSize: 20,
   },
 
   quickGrid: {
@@ -578,15 +982,7 @@ const styles = StyleSheet.create({
   },
 
   quizBadge: {
-    alignSelf: "flex-start",
-    backgroundColor: "#28204C",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 8,
-  },
-
-  quizBadgeText: {
-    color: "#9D8CFF",
+    color: "#A191FF",
     fontSize: 9,
     fontWeight: "900",
     letterSpacing: 1,
@@ -596,7 +992,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 21,
     fontWeight: "800",
-    marginTop: 14,
+    marginTop: 12,
   },
 
   quizDescription: {
@@ -607,7 +1003,7 @@ const styles = StyleSheet.create({
 
   quizButton: {
     backgroundColor: "#7658FF",
-    borderRadius: 14,
+        borderRadius: 14,
     paddingVertical: 13,
     alignItems: "center",
     marginTop: 17,
@@ -617,13 +1013,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 14,
     fontWeight: "800",
-  },
-
-  footer: {
-    color: "#45435A",
-    textAlign: "center",
-    fontSize: 10,
-    marginTop: 28,
   },
 
   bottomNav: {
@@ -638,13 +1027,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-    paddingBottom: 5,
   },
 
   navItem: {
     alignItems: "center",
     justifyContent: "center",
-    minWidth: 55,
   },
 
   navIcon: {
@@ -660,5 +1047,227 @@ const styles = StyleSheet.create({
 
   navActive: {
     color: "#8975FF",
+  },
+
+  pageHeader: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 25,
+  },
+
+  backButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: "#111027",
+    borderWidth: 1,
+    borderColor: "#292448",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
+  },
+
+  backText: {
+    color: "#FFFFFF",
+    fontSize: 30,
+    lineHeight: 30,
+  },
+
+  pageHeaderText: {
+    flex: 1,
+    marginLeft: 13,
+  },
+
+  eyebrow: {
+    color: "#8068FF",
+    fontSize: 9,
+    fontWeight: "900",
+    letterSpacing: 2,
+  },
+
+  title: {
+    color: "#FFFFFF",
+    fontSize: 28,
+    fontWeight: "900",
+    marginTop: 5,
+  },
+
+  subtitle: {
+    color: "#77758D",
+    fontSize: 12,
+    marginTop: 7,
+  },
+
+  classCard: {
+    backgroundColor: "#111027",
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#292448",
+    padding: 17,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 25,
+  },
+
+  classLabel: {
+    color: "#69677E",
+    fontSize: 9,
+    fontWeight: "800",
+    letterSpacing: 1.5,
+  },
+
+  className: {
+    color: "#FFFFFF",
+    fontSize: 19,
+    fontWeight: "800",
+    marginTop: 5,
+  },
+
+  changeButton: {
+    backgroundColor: "#201A45",
+    borderRadius: 10,
+    paddingHorizontal: 13,
+    paddingVertical: 8,
+  },
+
+  changeText: {
+    color: "#9A87FF",
+    fontSize: 11,
+    fontWeight: "700",
+  },
+
+  infoRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 12,
+  },
+
+  infoTitle: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "800",
+  },
+
+  infoCount: {
+    color: "#68667C",
+    fontSize: 11,
+  },
+
+  subjectCard: {
+    backgroundColor: "#101021",
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#222239",
+    padding: 15,
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 11,
+  },
+
+  subjectInfo: {
+    flex: 1,
+    marginLeft: 13,
+    marginRight: 10,
+  },
+
+  arrowCircle: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: "#1A1733",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  subjectHero: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#111027",
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: "#292448",
+    padding: 18,
+    marginTop: 20,
+    marginBottom: 25,
+  },
+
+  heroIcon: {
+    color: "#9A87FF",
+    fontSize: 42,
+    fontWeight: "900",
+    width: 60,
+  },
+
+  heroTitle: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "800",
+  },
+
+  heroSubtitle: {
+    color: "#77758D",
+    fontSize: 11,
+    marginTop: 5,
+  },
+
+  chapterHeading: {
+    color: "#FFFFFF",
+    fontSize: 19,
+    fontWeight: "800",
+    marginBottom: 12,
+  },
+
+  chapterCard: {
+    backgroundColor: "#101021",
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: "#222239",
+    padding: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+
+  chapterNumber: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: "#1A1733",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 13,
+  },
+
+  chapterNumberText: {
+    color: "#8F7CFF",
+    fontSize: 12,
+    fontWeight: "900",
+  },
+
+  chapterTitle: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "800",
+  },
+
+  chapterMeta: {
+    color: "#626077",
+    fontSize: 9,
+    marginTop: 4,
+  },
+
+  startButton: {
+    backgroundColor: "#7658FF",
+    borderRadius: 16,
+    paddingVertical: 15,
+    alignItems: "center",
+    marginTop: 15,
+  },
+
+  startButtonText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "900",
   },
 });
